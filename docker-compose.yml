@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # FastAPI应用服务
+  app_blue:
+    build: .
+    container_name: scan_app_blue
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=sqlite:///./app.db
+      - APP_ENV=production
+      - DEPLOYMENT_COLOR=blue
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./static:/app/static
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # 绿色部署容器（更新时使用）
+  app_green:
+    build: .
+    container_name: scan_app_green
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=sqlite:///./app.db
+      - APP_ENV=production
+      - DEPLOYMENT_COLOR=green
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./static:/app/static
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    # 初始状态下不启动绿色容器
+    profiles: ["green"]
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:latest
+    container_name: scan_app_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "8501-8505:8501-8505"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app_blue
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  app_data:

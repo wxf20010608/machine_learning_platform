@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/app/auth/__init__.py;D:/AI_人工智能/python/scan_app/app/auth/github.py;D:/AI_人工智能/python/scan_app/app/auth/models.py;D:/AI_人工智能/python/scan_app/app/auth/router.py;D:/AI_人工智能/python/scan_app/app/auth/service.py;D:/AI_人工智能/python/scan_app/app/scan/__init__.py;D:/AI_人工智能/python/scan_app/app/scan/models.py;D:/AI_人工智能/python/scan_app/app/scan/processor.py;D:/AI_人工智能/python/scan_app/app/scan/router.py;D:/AI_人工智能/python/scan_app/app/__init__.py;D:/AI_人工智能/python/scan_app/app/config.py;D:/AI_人工智能/python/scan_app/app/db.py;D:/AI_人工智能/python/scan_app/app/email_utils.py;D:/AI_人工智能/python/scan_app/static/__init__.py;D:/AI_人工智能/python/scan_app/templates/__init__.py;D:/AI_人工智能/python/scan_app/templates/login.html;D:/AI_人工智能/python/scan_app/templates/scan.html;D:/AI_人工智能/python/scan_app/main.py;D:/AI_人工智能/python/scan_app/README.md" />
+  </component>
+</project>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能页面</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --gray-color: #6c757d;
+            --border-color: #e9ecef;
+            --hover-color: #3f37c9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--gray-color);
+            font-size: 1.1rem;
+        }
+
+        /* Card Styles */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: var(--gray-color);
+            margin-bottom: 15px;
+        }
+
+        .card-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .card-button:hover {
+            background-color: var(--hover-color);
+        }
+
+        .card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .card.disabled .card-button {
+            background-color: #ccc;
+            color: #777;
+        }
+
+        /* Responsiveness */
+        @media (max-width: 768px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>欢迎来到机器学习模型训练和预测平台</h1>
+            <p>请选择您需要的功能</p>
+        </header>
+
+        <div class="card-container">
+            <!-- Scan Document Card -->
+            <div class="card">
+                <h3>扫描文件</h3>
+                <p>选择文件进行扫描并处理。</p>
+                <a href="javascript:void(0)" class="card-button" onclick="window.open('/scan', '_blank')">开始扫描</a>
+            </div>
+            <!-- KNN Card -->
+            <div class="card">
+                <h3>KNN实时摄像头识别</h3>
+                <p>使用KNN算法进行实时摄像头物体识别</p>
+                <a href="#" class="card-button" onclick="redirectToApp('/knn')">开始识别</a>
+            </div>
+
+            <!-- KMeans Card -->
+            <div class="card">
+                <h3>KMeans数据聚类分析</h3>
+                <p>使用KMeans算法对数据进行聚类分析</p>
+                <a href="#" class="card-button" onclick="redirectToApp('/kmeans')">开始分析</a>
+            </div>
+
+            <!-- Linear Regression Card -->
+            <div class="card">
+                <h3>线性回归房价预测</h3>
+                <p>使用线性回归算法预测加州房价</p>
+                <a href="#" class="card-button" onclick="redirectToApp('/linear-regression')">开始预测</a>
+            </div>
+
+            <!-- Logistic Regression Card -->
+            <div class="card">
+                <h3>逻辑回归手写数字识别</h3>
+                <p>使用逻辑回归算法识别手写数字</p>
+                <a href="#" class="card-button" onclick="redirectToApp('/logistic-regression')">开始识别</a>
+            </div>
+
+            <!-- Random Forest Card -->
+            <div class="card">
+                <h3>随机森林鸢尾花分类</h3>
+                <p>使用随机森林算法对鸢尾花进行分类</p>
+                <a href="#" class="card-button" onclick="redirectToApp('/random-forest')">开始分类</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从URL获取token参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // 存储token到localStorage
+            localStorage.setItem('access_token', token);
+            
+            // 启动Streamlit应用
+            fetch('/start-streamlit-apps')
+                .then(response => response.json())
+                .then(data => console.log(data.message))
+                .catch(error => console.error('启动Streamlit应用失败:', error));
+        });
+        
+        // 重定向到Streamlit应用的函数
+        function redirectToApp(appPath) {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            
+            let port;
+            switch(appPath) {
+                case '/knn':
+                    port = 8501;
+                    break;
+                case '/kmeans':
+                    port = 8502;
+                    break;
+                case '/linear-regression':
+                    port = 8503;
+                    break;
+                case '/logistic-regression':
+                    port = 8504;
+                    break;
+                case '/random-forest':
+                    port = 8505;
+                    break;
+                default:
+                    console.error('未知的应用路径');
+                    return;
+            }
+            
+            // 直接构造URL打开对应的Streamlit应用
+            const url = `http://${window.location.hostname}:${port}?token=${token}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

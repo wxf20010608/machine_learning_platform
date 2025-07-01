@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器学习平台 - 登录</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4bb543;
+            --error-color: #ff3333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--dark-color);
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            padding: 2.5rem;
+            margin: 1rem;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .status-message {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background-color: rgba(75, 181, 67, 0.2);
+            color: var(--success-color);
+            display: block;
+        }
+
+        .error {
+            background-color: rgba(255, 51, 51, 0.2);
+            color: var(--error-color);
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <h1>机器学习平台</h1>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">邮箱账号</label>
+                <input type="email" id="email" placeholder="输入你的邮箱" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <label for="code">验证码</label>
+                    <input type="text" id="code" placeholder="输入6位验证码" maxlength="6" pattern="\d{6}" title="请输入6位数字验证码" required>
+                </div>
+                <div class="form-group" style="flex: 1; align-self: flex-end;">
+                    <button type="button" id="sendCodeBtn" class="btn btn-secondary" onclick="sendVerificationCode()">
+                        获取验证码
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="verifyCode()">登录</button>
+        </form>
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <p style="margin-bottom: 1rem; color: #6c757d;">或使用</p>
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="githubLogin()"
+                style="margin-top: 10px; background-color: #24292e;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="margin-right: 8px;">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                GitHub登录
+            </button>
+            <button
+                type="button"
+                class="btn btn-secondary"
+                onclick="logoutGithub()"
+                style="margin-top: 10px; background-color: #6c757d;">
+                登出 GitHub
+            </button>
+        </div>
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <script>
+            function githubLogin() {
+        window.location.href = '/auth/github/login';
+    }
+
+    // 添加此函数
+    function logoutGithub() {
+        // 打开 GitHub 登出页面
+        window.open('https://github.com/logout', '_blank');
+        // 提示用户
+        alert('请在新窗口中完成 GitHub 登出，然后关闭该窗口并返回此页面重新登录');
+    }
+
+    async function sendVerificationCode() {
+        const email = document.getElementById('email').value;
+        const btn = document.getElementById('sendCodeBtn');
+
+        if (!email) {
+            showMessage('请输入邮箱地址', 'error');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '发送中 <span class="loading"></span>';
+
+        try {
+            const response = await fetch('/send-verification-code/', {
+            method: 'POST',
+            body: new URLSearchParams({email}),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showMessage('验证码已发送到您的邮箱', 'success');
+            // 开始倒计时
+            startCountdown(60);
+        } else {
+            showMessage(data.detail || '验证码发送失败', 'error');
+        }
+    } catch (error) {
+        showMessage('网络错误，请重试', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '获取验证码';
+    }
+}
+
+async function verifyCode() {
+    const email = document.getElementById('email').value;
+    const code = document.getElementById('code').value;
+
+    if (!email) {
+        showMessage('请输入邮箱地址', 'error');
+        return;
+    }
+
+    if (!code) {
+        showMessage('请输入验证码', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch('/verify-code/', {
+            method: 'POST',
+            body: new URLSearchParams({email, code}),
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('access_token', data.access_token);
+            window.location.href = '/features?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMTQwNzE3NjMyQHFxLmNvbSIsImV4cCI6MTc0NDg5NTk3OX0.Ji4jEIAaJiYpPj_OFYyS7rToXkp9SYoikj0gaTs6TPY';
+        } else {
+            showMessage(data.detail || '验证码错误', 'error');
+        }
+    } catch (error) {
+        showMessage('网络错误，请重试', 'error');
+    }
+}
+
+function showMessage(message, type) {
+    const statusEl = document.getElementById('statusMessage');
+    statusEl.textContent = message;
+    statusEl.className = 'status-message ' + type;
+}
+
+function startCountdown(seconds) {
+    const btn = document.getElementById('sendCodeBtn');
+    btn.disabled = true;
+
+    let remaining = seconds;
+    btn.textContent = `${remaining}s后重新获取`;
+
+    const timer = setInterval(() => {
+        remaining--;
+        btn.textContent = `${remaining}s后重新获取`;
+
+        if (remaining <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.textContent = '获取验证码';
+        }
+    }, 1000);
+}
+
+// 按Enter键提交表单
+document.getElementById('loginForm').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        verifyCode();
+    }
+});
+    
+    </script>
+</body>
+</html>
