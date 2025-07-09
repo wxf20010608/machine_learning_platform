@@ -1,0 +1,51 @@
+{
+    // 编辑器设置
+    "editor.tabSize": 4, // Tab 键的宽度，通常设置为 2 或 4
+    "editor.insertSpaces": true, // 按 Tab 键时插入空格而不是制表符
+    "editor.renderWhitespace": "all", // 显示所有空格字符（点表示空格，箭头表示制表符）
+    "editor.wordWrap": "on", // 自动换行
+    "editor.fontSize": 14, // 字体大小
+    "editor.lineNumbers": "on", // 显示行号
+
+    // 文件设置
+    "files.autoSave": "afterDelay", // 自动保存文件，当窗口失去焦点时
+    "files.autoSaveDelay": 1000, // 自动保存延迟（毫秒）
+    "files.eol": "\n", // 默认行尾序列，推荐使用 LF (Linux/macOS 风格)
+
+    // 终端设置
+    "terminal.integrated.defaultProfile.windows": "PowerShell", // Windows 默认集成终端为 PowerShell
+    "terminal.integrated.fontSize": 14, // 集成终端字体大小
+
+    // Python 扩展设置 (如果安装了 Python 扩展)
+    "python.defaultInterpreterPath": "python", // Python 解释器路径，可以设置为您的 Python 可执行文件的完整路径
+    "python.linting.enabled": true, // 启用 Python 代码 Linting
+    "python.linting.pylintEnabled": true, // 启用 Pylint
+    "python.formatting.provider": "black", // Python 格式化工具，推荐使用 black
+    "python.analysis.typeCheckingMode": "basic", // Python 类型检查模式
+
+    // Git 设置
+    "git.autofetch": true, // 自动获取 Git 远程变更
+    "git.confirmSync": false, // 同步时不再确认
+
+    // 工作区文件排除
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/__pycache__": true, // 排除 Python 缓存文件
+        "**/.pytest_cache": true, // 排除 pytest 缓存文件
+        "**/.vscode": true // 排除 .vscode 文件夹，通常不需要在文件浏览器中显示
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+        "**/*.code-search": true,
+        "**/__pycache__": true,
+        "**/.pytest_cache": true
+    },
+    "explorer.excludeGitIgnore": true,
+    "cursorpyright.analysis.typeCheckingMode": "basic" // 自动排除 .gitignore 中定义的文件和文件夹
+}

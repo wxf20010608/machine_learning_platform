@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, File, Form, HTTPException, Request, UploadFile, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -19,6 +19,8 @@ import logging
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import sys
+from typing import Union
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 logging.basicConfig(
@@ -95,35 +97,35 @@ async def knn_app(request: Request):
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
-    return {"url": f"http://localhost:8501?token={token}"}  # 使用PyTorch版本的KNN应用
+    return RedirectResponse(url=f"/knn/?token={token}") # 通过Nginx代理，并直接重定向
 
 @app.get("/kmeans")
 async def kmeans_app(request: Request):
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
-    return {"url": f"http://localhost:8502?token={token}"}  # 直接返回完整URL
+    return RedirectResponse(url=f"/kmeans/?token={token}")
 
 @app.get("/linear-regression")
 async def logistic_regression_app(request: Request):
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
-    return {"url": f"http://localhost:8503?token={token}"}  # 修正为8503端口
+    return RedirectResponse(url=f"/linear/?token={token}")
 
 @app.get("/logistic-regression")
 async def linear_regression_app(request: Request):
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
-    return {"url": f"http://localhost:8504?token={token}"}  # 修正为8504端口
+    return RedirectResponse(url=f"/logistic/?token={token}")
 
 @app.get("/random-forest")
 async def random_forest_app(request: Request):
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
-    return {"url": f"http://localhost:8505?token={token}"}  # 直接返回完整URL
+    return RedirectResponse(url=f"/forest/?token={token}")
 
 # 添加启动Streamlit应用的路由
 @app.get("/start-streamlit-apps")
@@ -139,7 +141,7 @@ async def start_streamlit_apps():
         raise HTTPException(status_code=500, detail=f"启动Streamlit应用失败: {str(e)}")
 
 # JWT 令牌创建函数
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=15)):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -161,7 +163,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         # 使用单一参数 - 适用于旧版本的python-jose
         payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
-        email: str = payload.get("sub")
+        email: Union[str, None] = payload.get("sub")
         if email is None:
             raise credentials_exception
         return {"email": email}
@@ -206,6 +208,18 @@ async def send_verification_code(email: str = Form(...)):
         logger.error(f"发送验证码到 {email} 失败")
         raise HTTPException(status_code=500, detail="发送验证码失败，请检查服务器日志")
 
+# 添加一个临时的测试路由，用于绕过邮件验证
+@app.get("/test-login")
+async def test_login():
+    """临时测试登录，直接返回有效的 token"""
+    email = "test@example.com"
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": email}, expires_delta=access_token_expires
+    )
+    redirect_url = f"/features?token={access_token}"
+    return {"message": "Test login successful", "access_token": access_token, "redirect_url": redirect_url}
+
 # 验证码验证路由
 @app.post("/verify-code/")
 async def verify_code(email: str = Form(...), code: str = Form(...)):
@@ -216,7 +230,9 @@ async def verify_code(email: str = Form(...), code: str = Form(...)):
         access_token = create_access_token(
             data={"sub": email}, expires_delta=access_token_expires
         )
-        return {"message": "Verification successful", "access_token": access_token, "redirect_url": "/features?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMTQwNzE3NjMyQHFxLmNvbSIsImV4cCI6MTc0NDg5NTk3OX0.Ji4jEIAaJiYpPj_OFYyS7rToXkp9SYoikj0gaTs6TPY"}
+        # 使用动态生成的token构建redirect_url
+        redirect_url = f"/features?token={access_token}"
+        return {"message": "Verification successful", "access_token": access_token, "redirect_url": redirect_url}
     else:
         raise HTTPException(status_code=400, detail="Invalid verification code")
 
@@ -224,6 +240,9 @@ async def verify_code(email: str = Form(...), code: str = Form(...)):
 async def scan(file: UploadFile = File(...)):
     try:
         contents = await file.read()
+
+        if file.filename is None:
+            raise HTTPException(status_code=400, detail="文件名缺失")
 
         # 确保文件保存到 UPLOADS_DIR 目录
         file_path = UPLOADS_DIR / file.filename
@@ -258,6 +277,9 @@ async def scan_form(request: Request):
 async def api_scan(file: UploadFile = File(...)):
     try:
         contents = await file.read()
+
+        if file.filename is None:
+            raise HTTPException(status_code=400, detail="文件名缺失")
 
         # Save the file to the UPLOADS_DIR
         file_path = UPLOADS_DIR / file.filename

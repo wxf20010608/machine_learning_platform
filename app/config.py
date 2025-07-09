@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     # 邮件设置
     SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.qq.com")
-    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "465"))
     SMTP_USER: str = os.getenv("SMTP_USER", "2140717632@qq.com")
     SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "emgwncdmfqwyeifc")
 

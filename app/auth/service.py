@@ -1,7 +1,6 @@
 import random
 import string
 from datetime import datetime, timedelta
-
 import requests
 from jose import JWTError, jwt
 from passlib.context import CryptContext

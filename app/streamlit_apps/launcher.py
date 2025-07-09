@@ -58,6 +58,3 @@ def main():
             else:
                 os.kill(process.pid, signal.SIGTERM)
         print('\nAll Streamlit apps have been stopped')
-
-if __name__ == '__main__':
-    main()

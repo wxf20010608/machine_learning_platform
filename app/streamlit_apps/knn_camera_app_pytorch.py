@@ -17,12 +17,18 @@ def main():
     st.title("KNN摄像头实时识别 (PyTorch版)")
     st.markdown("""
     ### 使用说明:
-    1. 点击 **启动摄像头** 按钮开始捕获视频
-    2. 使用下方按钮添加训练样本:
+    1. **摄像头配置**: 
+       - 输入 `0` 使用本地摄像头（需要摄像头权限）
+       - 输入网络摄像头URL，如 `http://192.168.1.100:8080/video`
+       - 或者使用IP摄像头应用提供的URL
+    2. 点击 **启动摄像头** 按钮开始捕获视频
+    3. 使用下方按钮添加训练样本:
        - 按 **添加A类样本** 将当前画面添加到A类
        - 按 **添加B类样本** 将当前画面添加到B类
        - 按 **添加C类样本** 将当前画面添加到C类
-    3. 添加足够的样本后，系统会自动预测当前画面属于哪个类别
+    4. 添加足够的样本后，系统会自动预测当前画面属于哪个类别
+    
+    **注意**: 在Docker容器中，本地摄像头可能无法访问，建议使用网络摄像头URL。
     """)
 
     # 初始化会话状态
@@ -64,16 +70,33 @@ def main():
     col1, col2 = st.columns([3, 2])
 
     with col1:
+        # 摄像头配置
+        st.subheader("摄像头配置")
+        camera_source = st.text_input(
+            "摄像头源 (0=本地摄像头, 或输入网络摄像头URL)",
+            value="0",
+            help="输入0使用本地摄像头，或输入网络摄像头URL如: http://192.168.1.100:8080/video"
+        )
+        
         # 摄像头控制按钮
         if st.button(f"{'停止' if st.session_state.camera_on else '启动'}摄像头"):
             st.session_state.camera_on = not st.session_state.camera_on
             if st.session_state.camera_on:
                 try:
-                    st.session_state.cap = cv2.VideoCapture(0)
+                    # 尝试解析摄像头源
+                    if camera_source.isdigit():
+                        # 本地摄像头
+                        st.session_state.cap = cv2.VideoCapture(int(camera_source))
+                    else:
+                        # 网络摄像头URL
+                        st.session_state.cap = cv2.VideoCapture(camera_source)
+                    
                     if not st.session_state.cap.isOpened():
                         st.error("无法访问摄像头，请检查权限或连接")
                         st.session_state.camera_on = False
                         st.session_state.cap = None
+                    else:
+                        st.success(f"成功连接到摄像头源: {camera_source}")
                 except Exception as e:
                     st.error(f"启动摄像头时出错: {str(e)}")
                     st.session_state.camera_on = False

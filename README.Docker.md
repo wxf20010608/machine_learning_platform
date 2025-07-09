@@ -56,7 +56,7 @@ docker-compose up -d
 
 ## 不停机更新
 
-当需要更新应用时，可以使用提供的`update.sh`脚本实现不停机更新：
+当需要更新应用时，可以使用提供的 `update.sh`脚本实现不停机更新：
 
 ```bash
 # 赋予脚本执行权限
@@ -92,7 +92,7 @@ chmod +x update.sh
 
 ## 环境变量配置
 
-应用的环境变量可以在`docker-compose.yml`文件中的`environment`部分进行配置。重要的环境变量包括：
+应用的环境变量可以在 `docker-compose.yml`文件中的 `environment`部分进行配置。重要的环境变量包括：
 
 - `DATABASE_URL`：数据库连接字符串
 - `APP_ENV`：应用环境（development/production）
@@ -100,7 +100,7 @@ chmod +x update.sh
 
 ## 注意事项
 
-1. 确保`docker-entrypoint.sh`脚本具有执行权限
+1. 确保 `docker-entrypoint.sh`脚本具有执行权限
 2. 在Windows环境中，可能需要调整脚本中的行尾序列（CRLF -> LF）
 3. 数据和模型文件存储在挂载卷中，确保这些目录具有适当的权限
 

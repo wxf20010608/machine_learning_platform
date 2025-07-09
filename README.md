@@ -82,7 +82,7 @@ pip install -r requirements.txt
 
 4. 配置环境变量
 
-复制`.env.example`文件为`.env`，并根据需要修改配置。
+复制 `.env.example`文件为 `.env`，并根据需要修改配置。
 
 5. 启动应用
 
@@ -114,41 +114,54 @@ chmod +x update.sh
 
 详细的Docker部署说明请参考 [README.Docker.md](README.Docker.md)。
 
+Nginx运行：
+
+1. 请在浏览器访问：
+
+* 主入口（Nginx 代理）：**http://localhost**
+* KNN 摄像头识别：**http://localhost/knn/**
+* KMeans 聚类：**http://localhost/kmeans/**
+* 线性回归：**http://localhost/linear/**
+* 逻辑回归：**http://localhost/logistic/**
+* 随机森林：**http://localhost/forest/**
+
 ## 使用指南
 
 ### 主要功能模块
 
 1. **用户认证**
+
    - 访问首页 http://localhost:8000 进行登录
    - 支持邮箱验证码和GitHub OAuth登录
-
 2. **文档扫描**
-   - 访问 http://localhost:8000/scan 上传并处理文档图像
 
+   - 访问 http://localhost:8000/scan 上传并处理文档图像
 3. **机器学习应用**
+
    - 登录后访问 http://localhost:8000/features 查看所有可用的机器学习功能
    - 点击相应卡片进入各个机器学习应用
 
 ### 机器学习应用说明
 
 1. **KNN摄像头识别**
+
    - 实时捕获摄像头画面并进行分类
    - 支持添加自定义类别样本
    - 使用MobileNetV2提取特征
-
 2. **K-Means聚类**
+
    - 支持上传数据进行聚类分析
    - 可视化聚类结果
-
 3. **逻辑回归**
+
    - 基于PyTorch实现的逻辑回归模型
    - 支持二分类任务
-
 4. **线性回归**
+
    - 基于PyTorch实现的线性回归模型
    - 支持加州房价数据集预测
-
 5. **随机森林**
+
    - 基于神经网络实现的随机森林近似模型
    - 支持多分类任务
 

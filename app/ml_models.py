@@ -167,9 +167,9 @@ class RandomForestModel(nn.Module):
 
 # Helper functions to load datasets
 def load_iris_data():
-    data = load_iris()
-    X, y = data.data, data.target
-    return X, y, data.target_names
+    iris_data = load_iris()
+    X, y = iris_data.data, iris_data.target
+    return X, y, iris_data.target_names
 
 
 def load_digits_data():
