@@ -1,7 +1,8 @@
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Mapped, mapped_column
 from datetime import datetime
+from typing import Optional
 # from app.config import settings
 
 # 直接使用连接字符串（不依赖config）
@@ -21,20 +22,20 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String, nullable=True)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     # 验证码相关字段
-    verification_code = Column(String, nullable=True)
-    verification_code_expires = Column(DateTime, nullable=True)
+    verification_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    verification_code_expires: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
     # GitHub相关字段
-    github_id = Column(String, unique=True, nullable=True)
-    github_username = Column(String, nullable=True)
-    github_avatar = Column(String, nullable=True)
+    github_id: Mapped[Optional[str]] = mapped_column(String, unique=True, nullable=True)
+    github_username: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    github_avatar: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
 
 # 获取数据库会话

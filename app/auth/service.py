@@ -1,6 +1,7 @@
 import random
 import string
 from datetime import datetime, timedelta
+from typing import Optional
 import requests
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -65,7 +66,7 @@ def verify_code(db: Session, email: str, code: str):
     if user.verification_code != code:
         return False
 
-    if datetime.utcnow() > user.verification_code_expires:
+    if user.verification_code_expires is None or datetime.utcnow() > user.verification_code_expires:
         return False
 
     # 验证成功后清除验证码
@@ -76,7 +77,7 @@ def verify_code(db: Session, email: str, code: str):
     return True
 
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     """创建访问令牌"""
     to_encode = data.copy()
 
@@ -101,7 +102,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
 
     try:
         payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        email: str = payload.get("sub")
+        email = payload.get("sub")
         if email is None:
             raise credentials_exception
         token_data = TokenData(email=email)

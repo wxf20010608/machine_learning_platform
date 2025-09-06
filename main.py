@@ -1,13 +1,18 @@
+import os
+import sys
+from pathlib import Path
+
+# 添加项目根目录到Python路径
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
-from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, File, Form, HTTPException, Request, UploadFile, Depends
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from jose import JWTError, jwt
 from app.db import Base, engine
 from app.email_utils import send_verification_email
 from app.scan.processor import process_document_image
@@ -15,13 +20,10 @@ from app.auth.router import router as auth_router
 from app.health import router as health_router
 from app.scan.router import router as scan_router
 from app.ml_routers import router as ml_router
+from app.auth.service import create_access_token
 import logging
 from fastapi.middleware.cors import CORSMiddleware
-import os
-import sys
 from typing import Union
-
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 logging.basicConfig(
     level=logging.INFO,
@@ -140,35 +142,6 @@ async def start_streamlit_apps():
         logger.error(f"启动Streamlit应用时出错: {str(e)}")
         raise HTTPException(status_code=500, detail=f"启动Streamlit应用失败: {str(e)}")
 
-# JWT 令牌创建函数
-def create_access_token(data: dict, expires_delta: timedelta = timedelta(minutes=15)):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-
-    # 使用单一参数 - 适用于旧版本的python-jose
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, ALGORITHM)
-    return encoded_jwt
-
-# 验证令牌函数
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        # 使用单一参数 - 适用于旧版本的python-jose
-        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
-        email: Union[str, None] = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        return {"email": email}
-    except JWTError:
-        raise credentials_exception
 
 @app.get("/")
 async def root(request: Request):
@@ -186,7 +159,11 @@ async def scan_page(request: Request):
 async def scan_app(request: Request):
     return templates.TemplateResponse("scan_app.html", {"request": request})
 
-# 发送验证码路由
+@app.get("/test-email")
+async def test_email_page(request: Request):
+    return templates.TemplateResponse("test_email.html", {"request": request})
+
+# 发送验证码路由 - 使用数据库存储
 @app.post("/send-verification-code/")
 async def send_verification_code(email: str = Form(...)):
     logger.info(f"收到发送验证码请求: {email}")
@@ -195,8 +172,18 @@ async def send_verification_code(email: str = Form(...)):
     verification_code = generate_verification_code()
     logger.info(f"生成验证码: {verification_code} 发送到: {email}")
 
-    # 存储验证码
-    verification_codes[email] = verification_code
+    # 存储验证码到数据库
+    from app.auth.service import store_verification_code
+    from app.db import get_db
+    
+    db = next(get_db())
+    try:
+        store_verification_code(db, email, verification_code)
+    except Exception as e:
+        logger.error(f"存储验证码失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="存储验证码失败")
+    finally:
+        db.close()
 
     # 发送邮件
     result = send_verification_email(email, verification_code)
@@ -206,25 +193,26 @@ async def send_verification_code(email: str = Form(...)):
         return {"message": "验证码已成功发送"}
     else:
         logger.error(f"发送验证码到 {email} 失败")
-        raise HTTPException(status_code=500, detail="发送验证码失败，请检查服务器日志")
+        raise HTTPException(status_code=500, detail="发送验证码失败，请检查邮箱地址是否正确")
 
-# 添加一个临时的测试路由，用于绕过邮件验证
-@app.get("/test-login")
-async def test_login():
-    """临时测试登录，直接返回有效的 token"""
-    email = "test@example.com"
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": email}, expires_delta=access_token_expires
-    )
-    redirect_url = f"/features?token={access_token}"
-    return {"message": "Test login successful", "access_token": access_token, "redirect_url": redirect_url}
 
-# 验证码验证路由
+# 验证码验证路由 - 使用数据库验证
 @app.post("/verify-code/")
 async def verify_code(email: str = Form(...), code: str = Form(...)):
     # 验证用户提供的验证码
-    if verify_user_code(email, code):  # 您需要实现此函数
+    from app.auth.service import verify_code as verify_code_db
+    from app.db import get_db
+    
+    db = next(get_db())
+    try:
+        is_valid = verify_code_db(db, email, code)
+    except Exception as e:
+        logger.error(f"验证验证码失败: {str(e)}")
+        raise HTTPException(status_code=500, detail="验证验证码失败")
+    finally:
+        db.close()
+    
+    if is_valid:
         # 如果验证成功，生成 JWT 令牌
         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
@@ -234,7 +222,7 @@ async def verify_code(email: str = Form(...), code: str = Form(...)):
         redirect_url = f"/features?token={access_token}"
         return {"message": "Verification successful", "access_token": access_token, "redirect_url": redirect_url}
     else:
-        raise HTTPException(status_code=400, detail="Invalid verification code")
+        raise HTTPException(status_code=400, detail="验证码无效或已过期")
 
 @router.post("/scan")
 async def scan(file: UploadFile = File(...)):

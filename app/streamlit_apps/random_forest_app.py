@@ -1,12 +1,15 @@
+# type: ignore
 import streamlit as st
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import seaborn as sns
 import numpy as np
 import joblib
@@ -66,7 +69,8 @@ def evaluate_model(model, test_loader):
             y_pred.extend(predicted.numpy())
     accuracy = accuracy_score(y_true, y_pred)
     cm = confusion_matrix(y_true, y_pred)
-    report = classification_report(y_true, y_pred, target_names=load_iris().target_names)
+    iris_data = load_iris()
+    report = classification_report(y_true, y_pred, target_names=iris_data.target_names)
     return accuracy, cm, report
 
 
@@ -94,10 +98,10 @@ X_test = torch.FloatTensor(X_test)
 y_test = torch.LongTensor(y_test)
 
 # 创建数据加载器
-train_dataset = torch.utils.data.TensorDataset(X_train, y_train)
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
-test_dataset = torch.utils.data.TensorDataset(X_test, y_test)
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=16, shuffle=False)
+train_dataset = TensorDataset(X_train, y_train)
+train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
+test_dataset = TensorDataset(X_test, y_test)
+test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
 
 # 模型初始化
 model = IrisClassifier()
@@ -124,7 +128,7 @@ if st.button("开始训练"):
     # 展示混淆矩阵
     st.subheader("混淆矩阵")
     fig, ax = plt.subplots(figsize=(8, 6))
-    sns.heatmap(cm, annot=True, fmt='d', cmap=plt.cm.Blues, xticklabels=iris.target_names,
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=iris.target_names,
                 yticklabels=iris.target_names)
     ax.set_xlabel('预测标签')
     ax.set_ylabel('真实标签')

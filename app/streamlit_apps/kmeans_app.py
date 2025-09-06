@@ -1,3 +1,4 @@
+# type: ignore
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -113,7 +114,7 @@ if st.sidebar.button("运行K-Means"):
     progress_bar.progress(30)
     
     kmeans = KMeans(n_clusters=k_clusters, max_iter=max_iter, 
-                   n_init=n_init, random_state=42)
+                   n_init=int(n_init), random_state=42)
     kmeans.fit(X_scaled)
     
     progress_bar.progress(70)

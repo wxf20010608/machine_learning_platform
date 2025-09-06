@@ -1,3 +1,5 @@
+# type: ignore
+import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,7 +17,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
-import streamlit as st
 
 # 设置matplotlib支持中文显示
 import matplotlib
@@ -229,7 +230,9 @@ def render_digit_recognition_page():
 
     st.write("混淆矩阵:")
     fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=range(10), yticklabels=range(10))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=[str(i) for i in range(10)], 
+                yticklabels=[str(i) for i in range(10)])
     plt.xlabel('预测标签')
     plt.ylabel('真实标签')
     plt.title('混淆矩阵')

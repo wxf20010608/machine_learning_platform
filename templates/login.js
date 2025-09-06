@@ -2,31 +2,6 @@ function githubLogin() {
     window.location.href = '/auth/github/login';
 }
 
-async function testLogin() {
-    try {
-        const response = await fetch('/test-login', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            localStorage.setItem('access_token', data.access_token);
-            if (data.redirect_url) {
-                window.location.href = data.redirect_url;
-            } else {
-                showMessage('登录成功，但未返回跳转地址', 'success');
-            }
-        } else {
-            showMessage(data.detail || '测试登录失败', 'error');
-        }
-    } catch (error) {
-        showMessage('网络错误，请重试', 'error');
-    }
-}
 
 // 添加此函数
 function logoutGithub() {

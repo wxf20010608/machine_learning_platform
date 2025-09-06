@@ -7,6 +7,11 @@ import socket
 
 
 def send_verification_email(to_email, verification_code):
+    # 如果是测试邮箱，直接返回成功
+    if to_email.endswith("@test.com") or to_email.endswith("@example.com"):
+        logger.info(f"测试邮箱 {to_email}，跳过实际发送")
+        return True
+        
     # 尝试多次发送
     max_retries = 3
     for attempt in range(max_retries):
@@ -84,6 +89,9 @@ def send_verification_email(to_email, verification_code):
                 logger.info(f"等待2秒后重试...")
                 time.sleep(2)
                 continue
+            return False
+        except smtplib.SMTPRecipientsRefused as e:
+            logger.error(f"收件人邮箱地址无效: {str(e)}")
             return False
         except smtplib.SMTPException as e:
             logger.error(f"SMTP错误: {str(e)}")

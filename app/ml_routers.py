@@ -1,3 +1,4 @@
+# type: ignore
 import torch
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 from fastapi.responses import JSONResponse
