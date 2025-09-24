@@ -88,6 +88,16 @@ SECRET_KEY = os.getenv("JWT_SECRET_KEY", "default_fallback_key_1234567890")
 # 添加机器学习功能页面路由
 @app.get("/ml-features")
 async def ml_features_page(request: Request):
+    """
+    机器学习功能页面
+    
+    显示机器学习功能的入口页面，需要有效的JWT token才能访问。
+    页面包含各种机器学习算法的链接和说明。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回机器学习功能页面的HTML模板。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
@@ -96,6 +106,16 @@ async def ml_features_page(request: Request):
 # 添加Streamlit应用路由
 @app.get("/knn")
 async def knn_app(request: Request):
+    """
+    KNN算法应用页面
+    
+    重定向到KNN (K-近邻) 算法的Streamlit应用页面。
+    需要有效的JWT token才能访问。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回重定向响应，跳转到KNN Streamlit应用。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
@@ -103,20 +123,50 @@ async def knn_app(request: Request):
 
 @app.get("/kmeans")
 async def kmeans_app(request: Request):
+    """
+    K-means聚类算法应用页面
+    
+    重定向到K-means聚类算法的Streamlit应用页面。
+    需要有效的JWT token才能访问。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回重定向响应，跳转到K-means Streamlit应用。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
     return RedirectResponse(url=f"/kmeans/?token={token}")
 
 @app.get("/linear-regression")
-async def logistic_regression_app(request: Request):
+async def linear_regression_app(request: Request):
+    """
+    线性回归算法应用页面
+    
+    重定向到线性回归算法的Streamlit应用页面。
+    需要有效的JWT token才能访问。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回重定向响应，跳转到线性回归 Streamlit应用。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
     return RedirectResponse(url=f"/linear/?token={token}")
 
 @app.get("/logistic-regression")
-async def linear_regression_app(request: Request):
+async def logistic_regression_app(request: Request):
+    """
+    逻辑回归算法应用页面
+    
+    重定向到逻辑回归算法的Streamlit应用页面。
+    需要有效的JWT token才能访问。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回重定向响应，跳转到逻辑回归 Streamlit应用。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
@@ -124,6 +174,16 @@ async def linear_regression_app(request: Request):
 
 @app.get("/random-forest")
 async def random_forest_app(request: Request):
+    """
+    随机森林算法应用页面
+    
+    重定向到随机森林算法的Streamlit应用页面。
+    需要有效的JWT token才能访问。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回重定向响应，跳转到随机森林 Streamlit应用。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
@@ -132,6 +192,14 @@ async def random_forest_app(request: Request):
 # 添加启动Streamlit应用的路由
 @app.get("/start-streamlit-apps")
 async def start_streamlit_apps():
+    """
+    启动所有Streamlit应用
+    
+    在后台线程中启动所有机器学习算法的Streamlit应用。
+    包括KNN、K-means、线性回归、逻辑回归、随机森林等应用。
+    
+    返回启动状态信息。如果启动失败，返回错误详情。
+    """
     try:
         from app.streamlit_apps.launcher import main as start_apps
         import threading
@@ -145,22 +213,47 @@ async def start_streamlit_apps():
 
 @app.get("/")
 async def root(request: Request):
+    """
+    根路径 - 登录页面
+    
+    返回用户登录页面，用户可以通过邮箱验证码或GitHub OAuth进行登录。
+    """
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/login")
 async def login_page(request: Request):
+    """
+    登录页面
+    
+    显示用户登录界面，支持邮箱验证码和GitHub OAuth两种登录方式。
+    """
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/scan")
 async def scan_page(request: Request):
+    """
+    文档扫描页面
+    
+    显示文档扫描功能的页面，用户可以上传图片进行文档处理和分析。
+    """
     return templates.TemplateResponse("scan.html", {"request": request})
 
 @app.get("/scan/app", tags=["scan"])
 async def scan_app(request: Request):
+    """
+    扫描应用页面
+    
+    提供文档扫描应用的主界面，包含上传、处理、预览等功能。
+    """
     return templates.TemplateResponse("scan_app.html", {"request": request})
 
 @app.get("/test-email")
 async def test_email_page(request: Request):
+    """
+    邮件测试页面
+    
+    用于测试邮件发送功能的页面，开发调试时使用。
+    """
     return templates.TemplateResponse("test_email.html", {"request": request})
 
 # 发送验证码路由 - 使用数据库存储
@@ -199,6 +292,17 @@ async def send_verification_code(email: str = Form(...)):
 # 验证码验证路由 - 使用数据库验证
 @app.post("/verify-code/")
 async def verify_code(email: str = Form(...), code: str = Form(...)):
+    """
+    验证邮箱验证码
+    
+    验证用户提供的邮箱和验证码，验证成功后生成JWT token。
+    验证码有时效性，过期后需要重新获取。
+    
+    - **email**: 用户邮箱地址 (form-data格式)
+    - **code**: 6位数字验证码 (form-data格式)
+    
+    验证成功后返回JWT token和重定向URL，失败返回错误信息。
+    """
     # 验证用户提供的验证码
     from app.auth.service import verify_code as verify_code_db
     from app.db import get_db
@@ -226,6 +330,16 @@ async def verify_code(email: str = Form(...), code: str = Form(...)):
 
 @router.post("/scan")
 async def scan(file: UploadFile = File(...)):
+    """
+    文档扫描处理 (旧版API)
+    
+    上传图片文件进行文档扫描和图像处理。
+    支持JPEG和PNG格式的图片文件。
+    
+    - **file**: 上传的图片文件
+    
+    返回原始图像和处理后图像的访问URL。
+    """
     try:
         contents = await file.read()
 
@@ -259,10 +373,26 @@ app.include_router(router, prefix="/api")
 
 @app.get("/scan-form")
 async def scan_form(request: Request):
+    """
+    扫描表单页面
+    
+    显示文档扫描的上传表单页面，用户可以通过表单上传图片进行扫描。
+    """
     return templates.TemplateResponse("scan_form.html", {"request": request})
 
 @app.post("/api/scan")
 async def api_scan(file: UploadFile = File(...)):
+    """
+    文档扫描处理 (新版API)
+    
+    上传图片文件进行文档扫描和图像处理，包含更完善的错误处理。
+    支持JPEG和PNG格式的图片文件。
+    
+    - **file**: 上传的图片文件 (multipart/form-data格式)
+    
+    返回处理结果，包含原始图像和处理后图像的访问URL。
+    如果处理失败，返回错误信息。
+    """
     try:
         contents = await file.read()
 
@@ -308,11 +438,31 @@ async def api_scan(file: UploadFile = File(...)):
 
 # 其他辅助函数
 def generate_verification_code():
+    """
+    生成随机验证码
+    
+    生成6位数字的随机验证码，用于邮箱验证。
+    
+    返回:
+        str: 6位数字验证码
+    """
     # 生成随机验证码
     import random
     return str(random.randint(100000, 999999))
 
 def store_verification_code(email, code):
+    """
+    存储验证码 (内存版本)
+    
+    将验证码存储到内存字典中。注意：生产环境应使用数据库存储。
+    
+    参数:
+        email (str): 用户邮箱
+        code (str): 验证码
+    
+    返回:
+        bool: 存储是否成功
+    """
     # 存储验证码，例如在数据库或者内存字典中
     # 这里使用一个简单的内存字典作为示例
     verification_codes[email] = code
@@ -320,16 +470,52 @@ def store_verification_code(email, code):
 
 @app.get("/features")
 async def features_page(request: Request):
+    """
+    功能页面
+    
+    显示平台主要功能入口的页面，需要有效的JWT token才能访问。
+    包含各种机器学习算法和文档处理功能的链接。
+    
+    - **token**: 查询参数，JWT认证token
+    
+    返回功能页面的HTML模板。
+    """
     token = request.query_params.get("token")
     if not token:
         raise HTTPException(status_code=400, detail="Missing token")
     return templates.TemplateResponse("features.html", {"request": request})
 
 def verify_user_code(email, code):
+    """
+    验证用户验证码 (内存版本)
+    
+    验证用户提供的邮箱和验证码是否匹配。
+    注意：生产环境应使用数据库验证。
+    
+    参数:
+        email (str): 用户邮箱
+        code (str): 验证码
+    
+    返回:
+        bool: 验证是否成功
+    """
     # 验证用户提供的验证码
     return email in verification_codes and verification_codes[email] == code
 
 def send_email(email, code):
+    """
+    发送邮件 (占位符函数)
+    
+    发送包含验证码的邮件。这是一个占位符函数，
+    实际实现应使用SMTP配置从.env文件读取。
+    
+    参数:
+        email (str): 目标邮箱
+        code (str): 验证码
+    
+    返回:
+        bool: 发送是否成功
+    """
     # 发送包含验证码的邮件
     # 使用 SMTP 配置从.env 文件
     # 略过实现，您应该有这部分代码
